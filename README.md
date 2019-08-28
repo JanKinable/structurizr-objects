@@ -29,7 +29,7 @@ Get the workspace id, apiKey and apiSecret. Go to your [dashboard](https://struc
 
 > You can take a view at the examples directory for some coding examples.
 
-#### Worspace
+#### Workspace
 
 Add a new class eg. `MyWorkspace.cs` and inherit from `WorkspaceBase`. Pass the workspace id, apiKey and apiSecret in the constructor. It is a best practise to seal the class.
 
