@@ -292,3 +292,5 @@ class Program
         myWorkspace.GenerateAndSaveWorkspace();
     }
 ```
+**TODO**
+- allow adding tags for filtered views
