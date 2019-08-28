@@ -6,6 +6,6 @@ namespace StructurizrObjects
     {
         Workspace GetWorkspace();
 
-        void PersistWorkspace(Workspace workspace, bool merge = false);
+        void PersistWorkspace(Workspace workspace);
     }
 }

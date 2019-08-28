@@ -12,7 +12,7 @@ namespace ConsoleRunner
             var outputFile = "D:\\Temp\\tests\\c4-financialrisksystem.json"; //fill in the output dir, upload via Web interface
 
             var workspace = new FinancialRiskSystem.FinancialRiskSystemWorkspace(outputFile);
-            workspace.GenerateAndSaveWorkspace(false);
+            workspace.GenerateAndSaveWorkspace();
 
             //Alternativaly: apply direct upload via client
             //var workspace = new FinancialRiskSystem.FinancialRiskSystemWorkspace(9999, "api-key", "api-secret");

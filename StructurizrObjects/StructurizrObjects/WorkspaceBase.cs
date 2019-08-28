@@ -23,7 +23,7 @@ namespace StructurizrObjects
 
         public virtual DefaultStyles DefaultStyles { get; private set; }
 
-        public Workspace GenerateAndSaveWorkspace(bool merge)
+        public Workspace GenerateAndSaveWorkspace()
         {
             _workspace = _persistenceStrategy.GetWorkspace();
 
@@ -37,7 +37,7 @@ namespace StructurizrObjects
 
             ApplyDefaultStyles(_workspace.Views.Configuration.Styles);
 
-            _persistenceStrategy.PersistWorkspace(_workspace, merge);
+            _persistenceStrategy.PersistWorkspace(_workspace);
 
             return _workspace;
         }

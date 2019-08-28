@@ -28,14 +28,10 @@ namespace StructurizrObjects
             }
         }
 
-        public void PersistWorkspace(Workspace workspace, bool merge = false)
+        public void PersistWorkspace(Workspace workspace)
         {
-            if (!merge)
-            {
-                WorkspaceManager.CommitChanges();
-            }
+            WorkspaceManager.CommitChanges();
 
-            _structurizrClient.MergeFromRemote = merge;
             _structurizrClient.PutWorkspace(_workSpaceId, workspace);
         }
     }

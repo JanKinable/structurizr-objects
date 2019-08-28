@@ -61,7 +61,7 @@ public sealed class MyWorkspace : WorkspaceBase
 
 #### Person
 
-Add a new class eg. `MyPerson.cs` and inherit from `PersonBase`. Create the constructor passing the workspace (class from Structurizr for .Net) and an Action. This action is to register if this class is already contained in the persisted model.
+Add a new class eg. `MyPerson.cs` and inherit from `PersonBase`. Create the constructor passing the workspace (class from Structurizr for .Net) and an Action. This action is to register if this class is already contained in the persisted model. This is used in the base class.
 
 Add a `PersonAttribute` to the class and add some description and state the location (either internal or external).
 
@@ -131,7 +131,7 @@ public sealed class MyComponent : ContainerBase
 
 ### Connecting the elements
 
-To connect elements (or as used in Sturucturizr: setup a relationship), override the `Connectors` property of your element class and call the `Connect<T,TS>(string description, string technology)` method. The first generic parameter `T` is the element to connect to, the second `TS` is the connector style (see furthur).
+To connect elements (or as used in Stucturizr: setup a relationship), override the `Connectors` property of your element class and call the `Connect<T,TS>(string description, string technology)` method. The first generic parameter `T` is the element to connect to, the second `TS` is the connector style (see furthur).
 
 ```csharp
 public sealed class MyComponent : ContainerBase
@@ -146,7 +146,7 @@ public sealed class MyComponent : ContainerBase
 
 ### Styles
 
-Styles are _cascading_, meaning the order of setting the styles is applied. The 'Default Styles' are always applied first. Custom Styles are set per class, here the order is also deterning.
+Styles are _cascading_, meaning the order of setting the styles is applied. The 'Default Styles' are always applied first. Custom Styles are set per class, here the order is also determining.
 
 #### Default styles
 
@@ -191,7 +191,7 @@ public class MyElementStyle: ElementStyleBase
 }
 ```
 
-This style can be assigned in any _Element_ class by overriding the `Styles` property and calling the genereic method `AddStyle<>()`:
+This style can be assigned in any _Element_ class by overriding the `Styles` property and calling the generic method `AddStyle<>()`:
 ```csharp
 public class MyPerson : PersonBase
 {
@@ -242,20 +242,53 @@ public class MyPerson : PersonBase
 
 ### Pushing/Syncing changes to Structurizr
 
-Create a console project and reference the project you just created. Instantiate the workspace and call the `GenerateAndSaveWorkspace(merge)`. 
-
-> The merge option should be set to `true` it you do not want objects created in the WebUI to be deleted when not included in your project as class. This means that your project is no longer the master and does **not reflect the code**! So in general you should use `false' to keep in sync.
+Create a console project and reference the project you just created. Instantiate the workspace and call the `GenerateAndSaveWorkspace()`. 
 
 ```csharp
 class Program
 {
     static void Main(string[] args)
     {
-        var myWorkspace = new LabWorkspace();
-        myWorkspace.GenerateAndSaveWorkspace(false);
+        var myWorkspace = new MyWorkspace();
+        myWorkspace.GenerateAndSaveWorkspace();
     }
 ```
 
 After you run this, your **model** is created in the Stucturizr WebUI. 
 
 You can now start drawing your diagrams!
+
+### Pushing/Syncing changes to a json file
+
+StructurizrObjects allows also to work around a json file to upload it manualy via the Structurizr WebUI.
+
+If you want to use this option, create an overload constructor on your workspace, passing the path of the file:
+
+```csharp
+public sealed class MyWorkspace : WorkspaceBase
+{
+    public MyWorkspace()
+            : base([workspaceId], [apikey], [apiSecret])
+    {
+    }
+
+    public MyWorkspace(string pathToJson)
+            : base(pathToJson)
+    {
+    }
+
+    public override string ContextBoundName => "MyContext";
+
+}
+```
+
+In the console program use this constructor to save the workspace as a json file.
+```csharp
+class Program
+{
+    static void Main(string[] args)
+    {
+        var myWorkspace = new LabWorkspace([pathToJson]);
+        myWorkspace.GenerateAndSaveWorkspace();
+    }
+```

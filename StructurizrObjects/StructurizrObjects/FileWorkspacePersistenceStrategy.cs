@@ -37,7 +37,7 @@ namespace StructurizrObjects
             }
         }
 
-        public void PersistWorkspace(Workspace workspace, bool merge = false)
+        public void PersistWorkspace(Workspace workspace)
         {
             using (var sw = new StreamWriter(_pathToJson))
             {
