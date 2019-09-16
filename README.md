@@ -214,7 +214,7 @@ You can adapt the style by using the _Set..._ methods.
 ```csharp
 public class MyRelationshipStyle: RelationshipStyleBase
 {
-    public MyElementStyle(Structurizr.Styles styles, Action<ElementType, string> onCreatedFromExistingElement) 
+    public MyRelationshipStyle(Structurizr.Styles styles, Action<ElementType, string> onCreatedFromExistingElement) 
         : base(styles, onCreatedFromExistingElement)
     {
         SetBackgroundColor(System.Drawing.Color.DodgerBlue);
@@ -292,3 +292,5 @@ class Program
         myWorkspace.GenerateAndSaveWorkspace();
     }
 ```
+**TODO**
+- allow adding tags for filtered views
