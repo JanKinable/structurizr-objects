@@ -330,7 +330,7 @@ namespace StructurizrObjects
         {
             var connectedContainer = _workspace.Model.SoftwareSystems
                 .SelectMany(x => x.Containers)
-                .First(x => x.Name == NamedIdentity.GetNameFromType(connector.ConnectTo));
+                .FirstOrDefault(x => x.Name == NamedIdentity.GetNameFromType(connector.ConnectTo));
             if (connectedContainer == null) return;
 
             var ctor = connector.RelationshipStyle.GetConstructor(new[] { typeof(Structurizr.Styles), typeof(Action<ElementType, string>) });
@@ -347,7 +347,7 @@ namespace StructurizrObjects
         {
             var connectedSystem = _workspace.Model.SoftwareSystems.SelectMany(x => x.Containers)
                 .SelectMany(x => x.Components)
-                .First(x => x.Name == NamedIdentity.GetNameFromType(connector.ConnectTo));
+                .FirstOrDefault(x => x.Name == NamedIdentity.GetNameFromType(connector.ConnectTo));
             if (connectedSystem == null) return;
 
             var ctor = connector.RelationshipStyle.GetConstructor(new[] { typeof(Structurizr.Styles), typeof(Action<ElementType, string>) });
