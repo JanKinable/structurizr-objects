@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.0.3</Version>
+    <Version>0.1.0</Version>
     <Company>Elbanique</Company>
     <Authors>Jan Kinable</Authors>
     <Copyright />
@@ -12,6 +12,7 @@
     <PackageTags>Structurizr</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReleaseNotes>Allow Import SoftwareSystems from referenced assemblies</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
