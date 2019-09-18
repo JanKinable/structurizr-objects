@@ -25,6 +25,7 @@ namespace StructurizrObjects.Styles
             Component = new ComponentStyle(styles, onCreatedFromExistingElement);
             AsyncLineStyle = new AsynchronousLineStyle(styles, onCreatedFromExistingElement);
             SyncLineStyle = new SynchronousLineStyle(styles, onCreatedFromExistingElement);
+            DependencyStyle = new DependencyStyle(styles, onCreatedFromExistingElement);
         }
 
         public Color PrimaryBackgroundColor
@@ -45,7 +46,7 @@ namespace StructurizrObjects.Styles
         public ComponentStyle Component { get; }
         public AsynchronousLineStyle AsyncLineStyle { get; }
         public SynchronousLineStyle SyncLineStyle { get; }
-
+        public DependencyStyle DependencyStyle { get; }
     }
 
     public class PersonStyle : ElementStyleBase
@@ -61,6 +62,17 @@ namespace StructurizrObjects.Styles
         public SoftwareSystemStyle(Structurizr.Styles styles, Action<ElementType, string> onCreatedFromExistingElement)
             : base(styles, onCreatedFromExistingElement)
         {
+        }
+    }
+    public class DependencyStyle : ElementStyleBase
+    {
+        public DependencyStyle(Structurizr.Styles styles, Action<ElementType, string> onCreatedFromExistingElement)
+            : base(styles, onCreatedFromExistingElement)
+        {
+            SetBorder(Border.Dashed);
+            SetBackgroundColor(System.Drawing.Color.DarkGray);
+            SetColor(System.Drawing.Color.White);
+            SetOpacity(50);
         }
     }
 

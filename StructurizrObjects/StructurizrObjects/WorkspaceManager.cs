@@ -53,6 +53,8 @@ namespace StructurizrObjects
 
         internal static void CommitChanges()
         {
+            var dependencyIds = new List<string>();
+
             if (_currentIds.Any())
             {
                 Console.WriteLine($"{_currentIds.Count} deleted object(s) found. Cleaning the model:");
@@ -65,6 +67,13 @@ namespace StructurizrObjects
             foreach (var currentId in _currentIds)
             {
                 var element = _workspace.Model.GetElement(currentId);
+                //check on dependencies (they are not loaded by the scanner)
+                if (NamedIdentity.TryGetTypeFromExternalAssemblyByElementName(element.Name, out var dependency))
+                {
+                    dependencyIds.Add(currentId);
+                    continue;
+                }
+
                 switch (element)
                 {
                     case SoftwareSystem softwareSystem:
@@ -104,6 +113,7 @@ namespace StructurizrObjects
             //remove all the dependencies
             foreach (var currentId in _currentIds)
             {
+                if (dependencyIds.Contains(currentId)) continue;
                 //
                 // Cleanup views
                 foreach (var landscapeViewItem in _workspace.Views.SystemLandscapeViews)
@@ -266,6 +276,38 @@ namespace StructurizrObjects
             return softwareSystem;
         }
 
+        private static SoftwareSystemBase CreateExternalSoftwareSystem(Type type)
+        {
+            var ctor = type.GetConstructor(new[] { typeof(Workspace), typeof(Action<ElementType, string>) });
+            if (ctor == null) return null;
+
+            Action<ElementType, string> callback = OnCreatedFromExistingElement;
+            var softwareSystem = ctor.Invoke(new object[] { _workspace, callback }) as SoftwareSystemBase;
+            if (softwareSystem == null) return null;
+
+            //change to external
+            softwareSystem.Me.Location = Location.External;
+
+            var tags = softwareSystem.Styles.Select(x => x?.GetElementStyle()?.Tag).Where(x => x != null).ToList();
+            tags.Add("Dependency");
+            softwareSystem.Me.AddUniqueTags(tags);
+            foreach (var container in softwareSystem.Containers)
+            {
+                var containerTags = container.Styles.Select(x => x?.GetElementStyle()?.Tag).Where(x => x != null).ToList();
+                containerTags.Add("Dependency");
+                container.Me.AddUniqueTags(containerTags);
+                Containers.Add(container);
+                foreach (var component in container.Components)
+                {
+                    var componentTags = component.Styles.Select(x => x?.GetElementStyle()?.Tag).Where(x => x != null).ToList();
+                    componentTags.Add("Dependency");
+                    component.Me.AddUniqueTags(componentTags);
+                    Components.Add(component);
+                }
+            }
+            return softwareSystem;
+        }
+
         private static PersonBase CreatePerson(Type type)
         {
             var ctor = type.GetConstructor(new[] { typeof(Workspace), typeof(Action<ElementType, string>) });
@@ -290,13 +332,15 @@ namespace StructurizrObjects
 
         private static void ApplyConnections(IEnumerable<ElementBase> elements)
         {
+            var softwareSystemDependencies = new List<SoftwareSystemBase>();
+            
             foreach (var component in elements)
             {
                 foreach (var connector in component.Connectors)
                 {
                     if (typeof(SoftwareSystemBase).IsAssignableFrom(connector.ConnectTo))
                     {
-                        ConnectToSoftwareSystem(connector, component.Element);
+                        softwareSystemDependencies.AddRange(ConnectToSoftwareSystem(connector, component.Element));
                     }
                     if (typeof(ContainerBase).IsAssignableFrom(connector.ConnectTo))
                     {
@@ -308,22 +352,35 @@ namespace StructurizrObjects
                     }
                 }
             }
+
+            if(softwareSystemDependencies.Any())
+                SoftwareSystems.AddRange(softwareSystemDependencies);
         }
 
-        private static void ConnectToSoftwareSystem(Connector connector, StaticStructureElement fromElement)
+        private static List<SoftwareSystemBase> ConnectToSoftwareSystem(Connector connector, StaticStructureElement fromElement)
         {
+            var softwareSystemDependencies = new List<SoftwareSystemBase>();
             var connectedSystem =
                 _workspace.Model.GetSoftwareSystemWithName(NamedIdentity.GetNameFromType(connector.ConnectTo));
-            if (connectedSystem == null) return;
+            if (connectedSystem == null)
+            {
+                //possibly from another library: for now only allow SoftwareSystem (loose containers and components are not allowed)
+                if (!typeof(SoftwareSystemBase).IsAssignableFrom(connector.ConnectTo)) return softwareSystemDependencies;
+
+                var softwareSystem = CreateExternalSoftwareSystem(connector.ConnectTo);
+                softwareSystemDependencies.Add(softwareSystem);
+                connectedSystem = softwareSystem.Me;
+            }
 
             var ctor = connector.RelationshipStyle.GetConstructor(new[] { typeof(Structurizr.Styles), typeof(Action<ElementType, string>) });
-            if (ctor == null) return;
+            if (ctor == null) return softwareSystemDependencies;
             Action<ElementType, string> callback = OnCreatedFromExistingElement;
             var connectorStyle = (RelationshipStyleBase)ctor.Invoke(new object[] { _workspace.Views.Configuration.Styles, callback });
 
             var relationship = fromElement.Relationships.FirstOrDefault(x => x.DestinationId == connectedSystem.Id)
                             ?? fromElement.Uses(connectedSystem, connector.Description, connector.Technology, connectorStyle.InteractionStyle);
             relationship.AddUniqueTag(connectorStyle.GetRelationshipStyle().Tag);
+            return softwareSystemDependencies;
         }
 
         private static void ConnectToContainer(Connector connector, StaticStructureElement fromElement)
